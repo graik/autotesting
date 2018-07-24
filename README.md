@@ -1,5 +1,4 @@
 # autotesting
-unittest extension in a single self-contained module 
 
 This is a fully self-contained extension to the standard PyUnit testing 
 framework. The main features are:
@@ -31,8 +30,21 @@ package and bundles them into a `FilteredTestSuite`. Note, `AutoTest` is
 derrived from the standard `unittest.TestCase` -- refer to the Python 
 documentation for details on test writing.
 
-Usage
+Setup
 =====
+
+1. Copy `testing.py` into your own python package.
+2. Adapt the module-level parameter `DEFAULT_PACKAGES`
+
+   E.g. if the name of your package (folder) is `superpy` and it also contains a sub-package (sub-folder) `superpy.tools`::
+   
+       DEFAULT_PACKAGES = ['superpy', 'superpy.tools']
+
+3. Define Unittest classes derived from `testing.AutoTest` in your code.
+4. Add the `localTest()` method in the `__main__` block of your modules -- see details below
+
+Adapting your code
+==================
 
   By way of example, a Test case for MyModule would look like this::
 
@@ -75,3 +87,5 @@ Note:
 
 This module also acts as the script to collect and run the tests. Run it without
 arguments for help.
+
+
