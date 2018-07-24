@@ -30,11 +30,26 @@ package and bundles them into a `FilteredTestSuite`. Note, `AutoTest` is
 derrived from the standard `unittest.TestCase` -- refer to the Python 
 documentation for details on test writing.
 
-Setup
-=====
+Run the example
+===============
+
+`testing.py` needs to be able to import your package. That means, the package
+*must* be in the PYTHONPATH. However, if you want to run the example tests,
+without installing `examplepackage` into your python environment, simply call the
+script from the parent folder::
+
+    git clone https://github.com/graik/autotesting.git
+    cd autotesting
+    python3 examplepackage/testing.py -i
+
+This works because Python automatically adds the current working directory
+into the $PYTHONPATH.
+
+Setup for your python project
+=============================
 
 1. Copy `testing.py` into your own python package.
-2. Adapt the module-level parameter `DEFAULT_PACKAGES`
+2. Adapt the module-level parameter `DEFAULT_PACKAGES` in `testing.py`
 
    E.g. if the name of your package (folder) is `superpy` and it also contains a sub-package (sub-folder) `superpy.tools`::
    
@@ -45,6 +60,8 @@ Setup
 
 Adapting your code
 ==================
+
+Easiest is probably to simply follow the example in the unimaginatively named file `example.py`. 
 
   By way of example, a Test case for MyModule would look like this:
 ```python
@@ -90,13 +107,14 @@ Running Tests
 
 The module also acts as the script to collect and run the tests. Run it without
 arguments for help. In the simplest case, the following will execute all the tests
-found in any module of your package and sub-package, except any tests tagged as 'OLD':
+found in any module of your registered package and sub-packages:
 
-    ./testing.py -e old
+    ./testing.py -i
 
-The following command will execute all the tests from a single sub-package:
+The following command will execute all the tests from a single sub-package,
+except the ones that are tagged 'LONG'::
 
-    ./testing.py -p superpy.tools
+    ./testing.py -p superpy.tools -e long
 
 Run `./testing.py` without arguments to see the complete help::
 
