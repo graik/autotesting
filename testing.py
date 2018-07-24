@@ -26,18 +26,18 @@ module where we could execute it directly from emacs (or with python
 are less easy to execute stand-alone and intermediate variables remain
 hidden within the test instance. 
 
-The L{localTest}() method removes this hurdle and runs the test code of a
+The :class:`localTest`() method removes this hurdle and runs the test code of a
 single module as if it would be executed directly in __main__. Simply putting
 the localTest() function without parameters into the __main__ section of your
 module is enough. Your Test.test_* methods should assign intermediate and
-final results to self.|something| variables -- L{localTest} will then push all
+final results to self.|something| variables -- :class:`localTest` will then push all
 self.* fields into the global namespace for interactive debugging.
 
 To get started, every module in your package should contain one or more classes
-derrived from L{AutoTest} (conventionally called C{Test}) that
-each contains one or more test_* functions. L{AutoTestLoader} then
+derrived from :class:`AutoTest` (conventionally called C{Test}) that
+each contains one or more test_* functions. :class:`AutoTestLoader` then
 automatically extracts all AutoTest child classes from the whole
-package and bundles them into a L{FilteredTestSuite}. Note, AutoTest is 
+package and bundles them into a :class:`FilteredTestSuite`. Note, AutoTest is 
 derrived from the standard unittest.TestCase -- refer to the Python 
 documentation for details on test writing.
 
@@ -98,7 +98,7 @@ import sys
 DEFAULT_PACKAGES = ['testtesting']
 
 #: tests with the following tags are excluded by default (override with -e)
-DEFAULT_EXCLUDE  = ['old']
+DEFAULT_EXCLUDE  = ['old', 'extra']
 
 ## END OF CONFIGURATION
 
@@ -107,8 +107,10 @@ NORMAL = 0  ## standard test case
 LONG   = 1  ## long running test case
 PVM    = 2  ## depends on PVM
 EXE    = 3  ## depends on external application
+EXTRA  = 4  ## tests not routinely run
 OLD    = 5  ## is obsolete
 SCRIPT = 6  ## a script test case
+FAILS  = 7  ## test known to currently fail (but procrastinated)
 
 class AutoTestError( Exception ):
     pass
@@ -149,16 +151,11 @@ def absfile( filename, resolveLinks=1 ):
 
 def packageRoot():
     """
-    The root folder of the parent python package
-    @return: str, absolute path of the root of current project
+    The folder containing the parent python package.
+    :return: str, absolute path of the root of current project
     """
-    ## import this module
-    import testing
-    ## get location of this module
-    f = absfile(testing.__file__)
-    ## extract path
-    f = os.path.join( os.path.split( f )[0], '..')
-    return absfile( f )
+    f = absfile(__file__)
+    return absfile( os.path.join( os.path.split( f )[0], '..') )
 
 def stripFilename( filename ):
     """
@@ -173,41 +170,6 @@ def stripFilename( filename ):
     except:
         pass  ## just in case there is no ending to start with...
     return name
-
-def file2dic( filename ):
-    """
-    Construct dictionary from file with key - value pairs (one per line).
-
-    :param filename: name of file
-    :type  filename: str
-    
-    :raise ToolsError: if file can't be parsed into dictionary
-    :raise IOError: if file can't be opened
-    """
-    try:
-        line = None
-        result = {}
-        for line in open( filename ):
-
-            if '#' in line:
-                line = line[ : line.index('#') ]
-            line = line.strip()
-
-            l = line.split()[1:]
-
-            if len( l ) == 0 and len( line ) > 0:
-                result[ line.split()[0] ] = ''
-            if len( l ) == 1:
-                result[ line.split()[0] ] = l[0]
-            if len( l ) > 1:
-                result[ line.split()[0] ] = l
-    except Exception as e:
-        s = "Error parsing option file %s." % filename
-        s += '\nLine: ' + str( line )
-        s += '\n' + str(e)
-        raise e.__class__(s)
-
-    return result
 
 #########################
 ### Core test library ###
@@ -350,6 +312,57 @@ class FilteredTestSuite( U.TestSuite ):
             U.TestSuite.addTest( self, test )
 
 
+import time
+
+class PrettyTextTestResult( U.TextTestResult ):
+    """
+    Helper class for TextTestRunner.
+    Only print either test description or doc-string.
+    """
+
+    
+    def getDescription(self, test):
+        s = test.id() + '  '
+        ## remove leading package name
+        if s.count('.') > 2:
+            s = s[s.index('.')+1:]
+        return s
+    
+    def startTest(self, test):
+        super(U.TextTestResult, self).startTest(test)
+        if self.showAll:
+            desc = self.getDescription(test)
+            self.stream.write(desc.ljust(60,'.'))
+            self.stream.write("... ")
+            self.stream.flush()
+        self.startclock = time.time()
+
+    def addSuccess(self, test):
+        ## super(U.TextTestResult, self).addSuccess(test)
+        dt = time.time() - self.startclock
+        
+        if self.showAll:
+            if dt > 0.5:
+                self.stream.writeln('ok  [%5.2fs]' % dt)
+            else:
+                self.stream.writeln('ok')
+
+        elif self.dots:
+            self.stream.write('.')
+            self.stream.flush()
+
+
+class SimpleTextTestRunner( U.TextTestRunner ):
+    """
+    Convince TextTestRunner to use the flushing text output rather
+    than the default one.
+    """
+
+    def _makeResult(self):
+        return PrettyTextTestResult(self.stream, self.descriptions,
+                                    self.verbosity)
+
+
 class AutoTestLoader( object ):
     """
     A replacement for the unittest TestLoaders. It automatically
@@ -410,7 +423,8 @@ class AutoTestLoader( object ):
                 r += [ __import__( '.'.join([module, f]), globals(),
                                    None, [module]) ]
             except Exception as why:
-                logging.error( 'Import failure: %s (%r)' % (f,why) )
+                if self.verbosity > 1:
+                    logging.error( 'Import failure in %s: %r' % (f,why) )
 
         return r
 
@@ -504,7 +518,7 @@ class AutoTestLoader( object ):
             testclass.VERBOSITY = self.verbosity
             testclass.TESTLOG = self.log
 
-        runner = U.TextTestRunner(self.log, verbosity=self.verbosity,
+        runner = SimpleTextTestRunner(self.log, verbosity=self.verbosity,
                                   descriptions=False)
         if not dry:
             self.result = runner.run( self.suite )
@@ -581,18 +595,20 @@ def localTest( testclass=None, verbosity=AutoTest.VERBOSITY,
         testclasses = extractTestCases( outer )
 
     suite = U.TestSuite()
-    for test in testclasses:
-        suite.addTests( U.TestLoader().loadTestsFromTestCase( test ) )
+    for c in testclasses:
+        suite.addTests( U.TestLoader().loadTestsFromTestCase(c) )
 
+    all_tests = []  ## cache pointer to tests; suite will drop them after run
     for test in suite:
         test.DEBUG = debug
         test.VERBOSITY = verbosity
         test.TESTLOG = log
+        all_tests += [ test ]
 
     runner= U.TextTestRunner(verbosity=verbosity)
     r = runner.run( suite )
 
-    for t in suite._tests:
+    for t in all_tests:
         outer.update( t.__dict__ )
         outer.update( {'self':t })
 
@@ -641,11 +657,10 @@ Examples:
 
         
 Default options:
-    """)
-    
-    for key, value in defaults.items():    
-        print ("\t-" + str(key) + "\t" + str(value))
-    
+""")
+    for key, value in defaults.items():
+        print("\t-",key, "\t",value)
+        
     sys.exit(0)
     
 ## quick and dirty command line argument parsing from Biskit.tools
@@ -698,15 +713,6 @@ def get_cmdDict(lst_cmd, dic_default):
     except (KeyError, UnboundLocalError) as why:
         raise AutoTestError("Can't resolve command line options.\n \tError:"+\
                   str(why))
-
-    ## get extra options from external file
-    try:
-        if 'x' in dic_cmd:
-            d = file2dic( dic_cmd['x'] )
-            d.update( dic_cmd )
-            dic_cmd = d
-    except IOError:
-        raise IOError("Error opening %s."% dic_cmd['x'])
 
     ## fill in missing default values
     dic_default.update( dic_cmd )
@@ -781,3 +787,8 @@ if __name__ == '__main__':
     l.report()
 
     print("DONE")
+    
+    ## Travis-CI and others expect non-0 return on any error
+    if l.result.wasSuccessful() and l.result.testsRun > 1:
+        sys.exit(0)
+    sys.exit(1)
