@@ -1,39 +1,22 @@
 # autotesting
 
-This is a low-footprint, fully self-contained extension to the standard PyUnit testing 
-framework. The main features are:
+This is a very low-footprint (self-contained in a single file `testing.py`)
+extension to the standard PyUnit testing framework. Simply copy this file
+into your own python package and your are ready to rock (see below for
+detailed instructions).
 
-  * fully automatic collection of test cases from a package
+The main features are:
+
+  * fully automatic collection of test cases from your package
   * filtering and grouping of test cases by 'tags' and sub-packages
   * test execution automatically kicks in if a module is run stand-alone
   * test variables are pushed into global name space for interactive debugging
-  * the test module doubles as script for running the tests
-
-Originally, our testing code was simply in the `__main__` section of each
-module where we could execute it directly from emacs (or with `python
--i`) for interactive debugging. By comparison, unittest test fixtures
-are less easy to execute stand-alone and intermediate variables remain
-hidden within the test instance. 
-
-The `localTest()` method removes this hurdle and runs the test code of a
-single module as if it would be executed directly in `__main__`. Simply putting
-the `localTest()` function without parameters into the `__main__` section of your
-module is enough. Your `Test.test_*` methods should assign intermediate and
-final results to `self.|something|` variables `localTest` will then push all
-`self.*` fields into the global namespace for interactive debugging.
-
-To get started, every module in your package should contain one or more classes
-derrived from `AutoTest` (conventionally called `Test`) that
-each contains one or more `test_*` functions. `AutoTestLoader` then
-automatically extracts all `AutoTest` child classes from the whole
-package and bundles them into a `FilteredTestSuite`. Note, `AutoTest` is 
-derrived from the standard `unittest.TestCase` -- refer to the Python 
-documentation for details on test writing.
+  * the testing module doubles as script for also running the tests
 
 Run the example
 ===============
 
-`testing.py` needs to be able to import your package. That means, the package
+`testing.py` needs to be able to import its parent package. That means, the package
 *must* be in the PYTHONPATH. However, if you want to run the example tests,
 without installing `examplepackage` into your python environment, simply call the
 script from the parent folder::
@@ -44,6 +27,31 @@ script from the parent folder::
 
 This works because Python automatically adds the current working directory
 into the $PYTHONPATH.
+
+Background & Motivation
+=======================
+
+Once upon a time, our testing code was simply in the `__main__` section of each
+module where we could execute it directly from emacs (or with `python
+-i`) for interactive debugging. By comparison, unittest test fixtures
+are less easy to execute stand-alone and intermediate variables remain
+hidden within the test instance. 
+
+The `localTest()` method removes this hurdle and runs the test code of a
+single module as if it would be executed directly in `__main__`. Simply putting
+the `localTest()` function without parameters into the `__main__` section of your
+module is enough. Your `Test.test_*` methods should assign intermediate and
+final results to `self.|something|` variables `localTest` will then push all
+`self.*` fields into the global namespace for interactive inspection after
+your tests have run through (or failed).
+
+To get started, every module in your package should contain one or more classes
+derrived from `AutoTest` (conventionally called `Test`) that
+each contains one or more `test_*` functions. `AutoTestLoader` then
+automatically extracts all `AutoTest` child classes from the whole
+package and bundles them into a `FilteredTestSuite`. Note, `AutoTest` is 
+derrived from the standard `unittest.TestCase` -- refer to the Python 
+documentation for details on test writing.
 
 Setup for your python project
 =============================
@@ -56,7 +64,8 @@ Setup for your python project
        DEFAULT_PACKAGES = ['superpy', 'superpy.tools']
 
 3. Define Unittest classes derived from `testing.AutoTest` in your code.
-4. Add the `localTest()` method in the `__main__` block of your modules -- see details below
+4. Add the `localTest()` method in the `__main__` block of your modules
+   -- see details below
 
 Adapting your code
 ==================
