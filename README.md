@@ -46,8 +46,8 @@ Setup
 Adapting your code
 ==================
 
-  By way of example, a Test case for MyModule would look like this::
-
+  By way of example, a Test case for MyModule would look like this:
+```python
     class MyClass:
         ...
 
@@ -77,7 +77,7 @@ Adapting your code
         testing.localTest( )
 
         print(result)  ## works thanks to some namespace magic in localTest
-
+```
 
 Note:
 
