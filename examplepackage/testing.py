@@ -95,7 +95,7 @@ import sys
 ## CONFIGURATION -- adapt the following values to your own Python package
 
 #: list all packages from which test cases are collected by default (-p)
-DEFAULT_PACKAGES = ['testtesting']
+DEFAULT_PACKAGES = ['examplepackage']
 
 #: tests with the following tags are excluded by default (override with -e)
 DEFAULT_EXCLUDE  = ['old', 'extra']
@@ -659,7 +659,7 @@ Examples:
 Default options:
 """)
     for key, value in defaults.items():
-        print("\t-",key, "\t",value)
+        print("\t-%s \t%r" % (key,value))
         
     sys.exit(0)
     
@@ -777,7 +777,6 @@ if __name__ == '__main__':
     
     l = AutoTestLoader( allowed=o['i'], forbidden=o['e'],
                           verbosity=o['v'], log=o['log'], debug=o['debug'])
-
 
     for package in o['p']:
         print('collecting ', repr( package ))

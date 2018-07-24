@@ -1,3 +1,4 @@
+import time
 
 ## write your code as always...
 class MyClass:
@@ -6,6 +7,7 @@ class MyClass:
         return 1 + 1
 
     def longComputation(self):
+        time.sleep(3)
         return 6 * 7
 
 ### Module testing ###
