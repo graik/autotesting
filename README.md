@@ -1,6 +1,6 @@
 # autotesting
 
-This is a fully self-contained extension to the standard PyUnit testing 
+This is a low-footprint, fully self-contained extension to the standard PyUnit testing 
 framework. The main features are:
 
   * fully automatic collection of test cases from a package
@@ -85,7 +85,47 @@ Note:
   - Names of test functions **must** start with `test_`.
   - The doc string of `test_*` will be reported as id of this test.
 
-This module also acts as the script to collect and run the tests. Run it without
-arguments for help.
+Running Tests
+=============
 
+The module also acts as the script to collect and run the tests. Run it without
+arguments for help. In the simplest case, the following will execute all the tests
+found in any module of your package and sub-package, except any tests tagged as 'OLD':
+
+    ./testing.py -e old
+
+The following command will execute all the tests from a single sub-package:
+
+    ./testing.py -p superpy.tools
+
+Run `./testing.py` without arguments to see the complete help::
+
+    Run unittest tests for the whole package.
+
+        testing.py [-i |include tag1 tag2..| -e |exclude tag1 tag2..|
+                    -p |package1 package2..|
+                    -v |verbosity| -log |log-file| -nox ]
+
+        i    - include tags, only run tests with at least one of these tags   [All]
+        e    - exclude tags, do not run tests labeled with one of these tags  [old]
+             valid tags are:
+                 long   - long running test case
+                 pvm    - depends on PVM
+                 exe    - depends on external application
+                 old    - is obsolete
+             (If no tags are given to -i this means all tests are included)
+
+        p    - packages to test, e.g. mypackage mypackage.parser           [All]
+        v    - int, verbosity level, 3 switches on several graphical plots      [2]
+        log  - path to logfile (overriden); empty -log means STDOUT        [STDOUT]
+        nox  - suppress test plots                                          [False]
+        dry  - do not actually run the test but just collect tests          [False]
+
+    Examples:
+
+        * Run all but long or obsolete tests from mypackage and mypackage.parser:
+        ./testing.py -e old long -p mypackage mypackage.parser
+
+        * Run only PVM-dependent tests of the mypackage.calc sub-package:
+        ./testing.py -i pvm -p mypackage.calc
 
