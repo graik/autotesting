@@ -22,7 +22,7 @@ The main features are:
 
 This testing module was originally developed for the biskit python library
 (https://github.com/graik/biskit) where we have been happily using and improving
-it for the last 15 or such years. autotest is a only slightly modified
+it for the last 11 or such years. autotest is a only slightly modified
 stand-alone version of the original `biskit.test.py` without any dependencies so
 that it can be more easily transferred into new packages.
 
