@@ -49,11 +49,11 @@ Setup for your python project
    of your package (see `example.py` for, well, an example).
 
 4. Add the following lines to the end of any python module that contains test
-   cases::
-
+   cases:
+   ```python
        if __name__ == '__main__':
            testing.localTest()
-
+   ```
 
 Running Tests
 =============
