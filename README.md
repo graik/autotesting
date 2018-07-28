@@ -15,7 +15,7 @@ The main features are:
   * fully automatic discovery of test cases from your package (without registration)
   * filtering and grouping of test cases by 'tags' and sub-packages
   * run all or selected tests using `testing.py` as a script or ...
-  * ... execute tests of a given module by simply executing this module
+  * ... execute tests of a given module by simply executing that module
   * test variables are pushed into global name space for interactive debugging
   * other tools supporting standard unittest will still work (e.g. WingIDE still
     identifies and runs `testing.AutoTest` classes as `unittest` instances)
