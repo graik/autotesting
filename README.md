@@ -1,8 +1,9 @@
 # autotesting
 
 This is a very low-footprint extension to the standard PyUnit testing
-framework. Simply copy the `testing.py` file into your own python package, adapt
-the `DEFAULT_PACKAGES` variable and your are ready to rock.
+framework. Simply copy the `testing.py` file from the `examplepackage` folder
+into your own python package, adapt the `DEFAULT_PACKAGES` variable and your are
+ready to rock.
 
 The main features are:
 
@@ -12,16 +13,22 @@ The main features are:
   * ... execute tests of a given module by simply executing this module
   * test variables are pushed into global name space for interactive debugging
 
+This testing module was originally developed for the biskit python library
+(https://github.com/graik/biskit) where we have been happily using and improving
+it for the last 15 or such years. autotest is a only slightly modified
+stand-alone version of the original `biskit.test.py` without any dependencies so
+that it can be more easily transferred into new packages.
+
 Run the example::
 ===============
 
     git clone https://github.com/graik/autotesting.git
     cd autotesting
-    python3 examplepackage/testing.py -i
+    python examplepackage/testing.py -i
 
-`testing.py` assumes that is is located in the root of your python package and
-it needs to be able to import this parent package. That means, your package
-*must* be in the PYTHONPATH. However, you can run the example tests, without
+`testing.py` assumes that it is is located in the root of your python package
+and it needs to be able to import this parent package. That means, your package
+*must* be in the PYTHONPATH. However, you can run the example tests without
 installing `examplepackage` into your python environment: simply call the script
 from the parent folder, as shown above. (This works because Python automatically
 adds the current working directory into the $PYTHONPATH.)
@@ -34,7 +41,7 @@ Setup for your python project
 2. Adapt the module-level parameter `DEFAULT_PACKAGES` in `testing.py`
 
    E.g. if the name of your package (folder) is `superpy` and it also contains a
-   sub-package (sub-folder) `superpy.tools`::
+   sub-package (sub-folder) `superpy/tools`::
    
        DEFAULT_PACKAGES = ['superpy', 'superpy.tools']
 
@@ -44,8 +51,8 @@ Setup for your python project
 4. Add the following lines to the end of any python module that contains test
    cases::
 
-    if __name__ == '__main__':
-        testing.localTest()
+       if __name__ == '__main__':
+           testing.localTest()
 
 
 Running Tests
