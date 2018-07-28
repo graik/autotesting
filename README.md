@@ -7,11 +7,13 @@ ready to rock.
 
 The main features are:
 
-  * fully automatic collection of test cases from your package (without registration)
+  * fully automatic discovery of test cases from your package (without registration)
   * filtering and grouping of test cases by 'tags' and sub-packages
   * run all or selected tests using `testing.py` as a script or ...
   * ... execute tests of a given module by simply executing this module
   * test variables are pushed into global name space for interactive debugging
+  * other tools supporting standard unittest will still work (e.g. WingIDE still
+    identifies and runs `testing.AutoTest` classes as `unittest` instances)
 
 This testing module was originally developed for the biskit python library
 (https://github.com/graik/biskit) where we have been happily using and improving
@@ -112,7 +114,7 @@ Simply follow the example in the unimaginatively named file `example.py`.
 Background & Motivation
 =======================
 
-autotesting tries to recover the convenience of good old times, when testing
+autotest tries to recover the convenience of good old times, when testing
 code was simply dumped into the `__main__` section of a module where it could be
 executed and interactively debuged directly from emacs or ipython. The
 introduction of unittests and test fixtures, despite many advantages, lost a lot
@@ -136,4 +138,11 @@ information (plots, detailed progress bars, etc). Moreover, any variables
 assigned to the test instance (`self.*`) will be pushed to the global python
 namespace for interactive inspection after your tests have run or failed.
 
-
+The main philosophy behind this little module is to keep things simple but
+practical and to minimize the code that deals with the management of your
+testing infrastructure. Contrary to the opinion of serious experts, we very much
+prefer to have our testing routines right next to and in the same file as the
+code being tested. That's the scenario autotest is particularly good for but it
+could, of course, also be used for tests that are collected in seperate files
+and folders (but, unless your test files are bundled in their own sub-package,
+testing.py will report many modules with missing test cases).
