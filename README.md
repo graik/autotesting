@@ -5,6 +5,11 @@ framework. Simply copy the `testing.py` file from the `examplepackage` folder
 into your own python package, adapt the `DEFAULT_PACKAGES` variable and your are
 ready to rock.
 
+The main philosophy behind this little module is to keep things simple but
+practical and to minimize the code that deals with the management of your
+testing infrastructure. Contrary to the opinion of serious experts, we very much
+prefer to have our testing routines right next to and in the same file as the
+code being tested. That's the scenario autotest is particularly good for.
 The main features are:
 
   * fully automatic discovery of test cases from your package (without registration)
@@ -138,11 +143,7 @@ information (plots, detailed progress bars, etc). Moreover, any variables
 assigned to the test instance (`self.*`) will be pushed to the global python
 namespace for interactive inspection after your tests have run or failed.
 
-The main philosophy behind this little module is to keep things simple but
-practical and to minimize the code that deals with the management of your
-testing infrastructure. Contrary to the opinion of serious experts, we very much
-prefer to have our testing routines right next to and in the same file as the
-code being tested. That's the scenario autotest is particularly good for but it
-could, of course, also be used for tests that are collected in seperate files
-and folders (but, unless your test files are bundled in their own sub-package,
-testing.py will report many modules with missing test cases).
+BTW, although that's not our usage scenario, autotest can just as well be used if
+your tests are collected in seperate files and folders. However, unless your
+test files are bundled in their own sub-package, testing.py will, in this case,
+report a high number of modules with missing test cases.
