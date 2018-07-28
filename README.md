@@ -41,18 +41,21 @@ Setup for your python project
 2. Adapt the module-level parameter `DEFAULT_PACKAGES` in `testing.py`
 
    E.g. if the name of your package (folder) is `superpy` and it also contains a
-   sub-package (sub-folder) `superpy/tools`::
-   
-       DEFAULT_PACKAGES = ['superpy', 'superpy.tools']
+   sub-package (sub-folder) `superpy/tools`:
+
+   ```python
+   DEFAULT_PACKAGES = ['superpy', 'superpy.tools']
+   ```
 
 3. Define Unittest classes derived from `testing.AutoTest` in the python modules
    of your package (see `example.py` for, well, an example).
 
 4. Add the following lines to the end of any python module that contains test
    cases:
+
    ```python
-       if __name__ == '__main__':
-           testing.localTest()
+   if __name__ == '__main__':
+       testing.localTest()
    ```
 
 Running Tests
